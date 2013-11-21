@@ -2,6 +2,7 @@
 from math import sqrt
 
 settings = None
+local = True
 
 # constants
 

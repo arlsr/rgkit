@@ -1,7 +1,9 @@
 import Tkinter
 import game
 
+
 class Render:
+
     def __init__(self, game_inst, settings, block_size=30):
         self._settings = settings
         self._blocksize = block_size
@@ -14,13 +16,13 @@ class Render:
         self._master.title('robot game')
 
         width = self._winsize
-        height = self._winsize + self._blocksize * 7/4
+        height = self._winsize + self._blocksize * 7 / 4
         self._win = Tkinter.Canvas(self._master, width=width, height=height)
         self._win.pack()
 
         self.prepare_backdrop(self._win)
         self._label = self._win.create_text(
-            self._blocksize/2, self._winsize + self._blocksize/2,
+            self._blocksize / 2, self._winsize + self._blocksize / 2,
             anchor='nw', font='TkFixedFont', fill='white')
 
         self.create_controls(self._win, width, height)
@@ -39,7 +41,8 @@ class Render:
 
     def toggle_pause(self):
         self._paused = not self._paused
-        self._toggleButton.config(text=u'\u25B6' if self._paused else u'\u25FC')
+        self._toggleButton.config(
+            text=u'\u25B6' if self._paused else u'\u25FC')
 
     def create_controls(self, win, width, height):
         def change_turn(turns):
@@ -55,7 +58,7 @@ class Render:
             change_turn(+1)
 
         def restart():
-            change_turn((-self._turn)+1)
+            change_turn((-self._turn) + 1)
 
         def pause():
             self.toggle_pause()
@@ -66,7 +69,8 @@ class Render:
 
         frame = Tkinter.Frame()
         win.create_window(width, height, anchor=Tkinter.SE, window=frame)
-        self._toggleButton = Tkinter.Button(frame, text=u'\u25B6', command=self.toggle_pause)
+        self._toggleButton = Tkinter.Button(
+            frame, text=u'\u25B6', command=self.toggle_pause)
         self._toggleButton.pack(side='left')
         prevButton = Tkinter.Button(frame, text='<', command=prev)
         prevButton.pack(side='left')
@@ -76,13 +80,16 @@ class Render:
         restartButton.pack(side='left')
 
     def prepare_backdrop(self, win):
-        self._win.create_rectangle(0, 0, self._winsize, self._winsize + self._blocksize, fill='#555', width=0)
-        self._win.create_rectangle(0, self._winsize, self._winsize, self._winsize + self._blocksize * 7/4, fill='#333', width=0)
+        self._win.create_rectangle(
+            0, 0, self._winsize, self._winsize + self._blocksize, fill='#555', width=0)
+        self._win.create_rectangle(0, self._winsize, self._winsize,
+                                   self._winsize + self._blocksize * 7 / 4, fill='#333', width=0)
         for x in range(self._settings.board_size):
             for y in range(self._settings.board_size):
                 self._win.create_rectangle(
                     x * self._blocksize + 21, y * self._blocksize + 21,
-                    x * self._blocksize + self._blocksize - 3 + 21, y * self._blocksize + self._blocksize - 3 + 21,
+                    x * self._blocksize + self._blocksize - 3 + 21, y *
+                    self._blocksize + self._blocksize - 3 + 21,
                     fill='black',
                     width=0)
 
@@ -109,20 +116,20 @@ class Render:
         if offset:
             x += offset[0]
             y += offset[1]
-        
+
         item = self._win.create_text(x, y, text=text, fill=color,
-            font=('TkDefaultFont', int(self._blocksize/2.3)))
+                                     font=('TkDefaultFont', int(self._blocksize / 2.3)))
         self._winitems.append(item)
-        
+
     def draw_line(self, src, dst, color='lightblue'):
-        
+
         srcx = src[0] * self._blocksize + self._blocksize
         srcy = src[1] * self._blocksize + self._blocksize
         dstx = dst[0] * self._blocksize + self._blocksize
         dsty = dst[1] * self._blocksize + self._blocksize
-        
+
         item = self._win.create_line(srcx, srcy, dstx, dsty,
-            fill=color, width=3.0, arrow=Tkinter.LAST)
+                                     fill=color, width=3.0, arrow=Tkinter.LAST)
         self._winitems.append(item)
 
     def update_title(self, turns, max_turns):
@@ -167,7 +174,7 @@ class Render:
             self._win.delete(item)
         self._texts = []
         self._winitems = []
-        
+
         lines = []
         texts = []
 
@@ -183,19 +190,19 @@ class Render:
                     color = 'white' if hp <= 20 else None
                     self.draw_text(loc, hp, color=color)
                     texts.append((loc, hp, color))
-                
-                action = self._game.actionat[self._turn-1].get(loc)
+
+                action = self._game.actionat[self._turn - 1].get(loc)
                 if action:
                     dst = action['target']
-                    texts.append((loc, action['name'][0], 'blue', (0, self._blocksize/2.4)))
+                    texts.append(
+                        (loc, action['name'][0], 'blue', (0, self._blocksize / 2.4)))
                     if action['name'] == 'attack':
                         lines.append((loc, dst, 'orange'))
                     elif action['name'] == 'move':
                         if loc != dst:
                             lines.append((loc, dst))
-        
+
         for line in lines:
             self.draw_line(*line)
         for textargs in texts:
             self.draw_text(*textargs)
-        

@@ -3,7 +3,7 @@ import random
 import sys
 import traceback
 import imp
-###
+#
 import rg
 import defaultrobots
 from settings import settings, AttrDict
@@ -17,7 +17,9 @@ def init_settings(map_data):
     settings.start2 = map_data['start2']
     rg.set_settings(settings)
 
+
 class Player:
+
     def __init__(self, code=None, robots=None):
         if code is not None:
             self._mod = imp.new_module('usercode%d' % id(self))
@@ -47,7 +49,9 @@ class Player:
         self._cache[class_name] = getattr(mod, class_name)()
         return self._cache[class_name]
 
+
 class InternalRobot:
+
     def __init__(self, location, hp, player_id, robot_id, field, robot_type):
         self.location = location
         self.hp = hp
@@ -166,7 +170,10 @@ class InternalRobot:
             self.call_attack(loc, action_table, damage=settings.suicide_damage)
 
 # just to make things easier
+
+
 class Field:
+
     def __init__(self, size):
         self.field = [[None for x in range(size)] for y in range(size)]
 
@@ -179,7 +186,9 @@ class Field:
     def __setitem__(self, point, v):
         self.field[point[1]][point[0]] = v
 
+
 class Game:
+
     def __init__(self, player1, player2, record_turns=False, unit_testing=False):
         self._players = (player1, player2)
         self.turns = 0
@@ -191,7 +200,7 @@ class Game:
         self._record = record_turns
         if self._record:
             self.history = [[] for i in range(2)]
-            self.actionat = {}      
+            self.actionat = {}
 
         self.spawn_starting()
 
@@ -315,6 +324,7 @@ class Game:
     def clear_spawn_points(self):
         for loc in settings.spawn_coords:
             if self._field[loc] is not None:
+                print "[game.py] destroying robot on spawn", loc
                 self._robots.remove(self._field[loc])
                 self._field[loc] = None
 
@@ -363,7 +373,7 @@ class Game:
                 newaction['name'] = name
                 newaction['target'] = action[1] if len(action) > 1 else None
                 # newaction['source'] = loc
-                # newaction['robot'] = robot                
+                # newaction['robot'] = robot
                 self.actionat[self.turns][loc] = newaction
 
         self.turns += 1
