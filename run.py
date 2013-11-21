@@ -21,12 +21,17 @@ parser.add_argument("-H", "--headless", action="store_true",
 parser.add_argument("-c", "--count", type=int,
                     default=1,
                     help="Game count, default: 1")
+parser.add_argument("-N", "--no-history", action="store_true",
+                    default=False,
+                    help="Disable history dump after game.")
+
 
 def make_player(fname):
     with open(fname) as player_code:
         return game.Player(player_code.read())
 
-def play(players, print_info=True):
+
+def play(players, print_info=True, print_history=True):
     g = game.Game(*players, record_turns=True)
     for i in xrange(settings.max_turns):
         if print_info:
@@ -35,6 +40,7 @@ def play(players, print_info=True):
 
     if print_info:
         render.Render(g, game.settings)
+    if print_history:
         print g.history
 
     return g.get_scores()
@@ -53,7 +59,8 @@ if __name__ == '__main__':
     scores = []
 
     for i in xrange(args.count):
-        scores.append(play(players, not args.headless))
+        scores.append(play(players, not args.headless,
+                           print_history=(not args.no_history)))
         print scores[-1]
 
     if args.count > 1:
