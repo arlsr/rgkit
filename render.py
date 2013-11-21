@@ -2,7 +2,7 @@ import Tkinter
 import game
 
 class Render:
-    def __init__(self, game_inst, settings, block_size=20):
+    def __init__(self, game_inst, settings, block_size=30):
         self._settings = settings
         self._blocksize = block_size
         self._winsize = block_size * self._settings.board_size + 40
@@ -26,7 +26,7 @@ class Render:
         self.create_controls(self._win, width, height)
 
         self._turn = 1
-        self._texts = []
+        self._winitems = []
         self._squares = {}
 
         self.callback()
@@ -102,12 +102,28 @@ class Render:
             self._win.delete(self._squares.pop(loc))
         self._squares[loc] = item
 
-    def draw_text(self, loc, text, color=None):
-        x, y = loc
-        item = self._win.create_text(
-            x * self._blocksize + 30, y * self._blocksize + 25,
-            text=text, fill=color)
-        self._texts.append(item)
+    def draw_text(self, loc, text, color=None, offset=None):
+        locx, locy = loc
+        x = locx * self._blocksize + (self._blocksize * 1.1)
+        y = locy * self._blocksize + (self._blocksize * 1.0)
+        if offset:
+            x += offset[0]
+            y += offset[1]
+        
+        item = self._win.create_text(x, y, text=text, fill=color,
+            font=('TkDefaultFont', int(self._blocksize/2.3)))
+        self._winitems.append(item)
+        
+    def draw_line(self, src, dst, color='lightblue'):
+        
+        srcx = src[0] * self._blocksize + self._blocksize
+        srcy = src[1] * self._blocksize + self._blocksize
+        dstx = dst[0] * self._blocksize + self._blocksize
+        dsty = dst[1] * self._blocksize + self._blocksize
+        
+        item = self._win.create_line(srcx, srcy, dstx, dsty,
+            fill=color, width=3.0, arrow=Tkinter.LAST)
+        self._winitems.append(item)
 
     def update_title(self, turns, max_turns):
         red = len(self._game.history[0][self._turn - 1])
@@ -147,9 +163,13 @@ class Render:
         return None
 
     def paint(self):
-        for item in self._texts:
+        for item in self._winitems:
             self._win.delete(item)
         self._texts = []
+        self._winitems = []
+        
+        lines = []
+        texts = []
 
         for y in range(self._settings.board_size):
             self.draw_text((y, 0), str(y), 'white')
@@ -162,3 +182,20 @@ class Render:
                     hp, color = botinfo
                     color = 'white' if hp <= 20 else None
                     self.draw_text(loc, hp, color=color)
+                    texts.append((loc, hp, color))
+                
+                action = self._game.actionat[self._turn-1].get(loc)
+                if action:
+                    dst = action['target']
+                    texts.append((loc, action['name'][0], 'blue', (0, self._blocksize/2.4)))
+                    if action['name'] == 'attack':
+                        lines.append((loc, dst, 'orange'))
+                    elif action['name'] == 'move':
+                        if loc != dst:
+                            lines.append((loc, dst))
+        
+        for line in lines:
+            self.draw_line(*line)
+        for textargs in texts:
+            self.draw_text(*textargs)
+        
